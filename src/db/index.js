@@ -1,6 +1,11 @@
 import mongoose from "mongoose"
+import dotenv from "dotenv"
+
+dotenv.config();
+consl
 
 const connectDB = async () => {
+
     try {
 
         await mongoose.connect(process.env.MONGO_URI);
@@ -8,8 +13,8 @@ const connectDB = async () => {
 
     } catch (error) {
 
-        console.error("DB connection failed: ", error)
-        process.exit(1)
+        console.error("DB connection failed");
+        process.exit(1);
 
     }
 }
