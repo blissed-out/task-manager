@@ -1,57 +1,59 @@
 import User from "../models/user.model.js";
 import crypto from "crypto";
+import asyncHandler from "../utils/async_handler.js";
 
 const home = async (req, res) => {
   res.send("this is home page sisters and brothers");
 };
 
-const register = async (req, res) => {
-  const { name, email, password } = req.body;
-  // get data from user
-  // validate data
-  // store in database (hash the password)
-  // send response
+const register = asyncHandler(() => {
+  (req, res) => {
+    const { name, email, password } = req.body;
+    // get data from user
+    // validate data
+    // store in database (hash the password)
+    // send response
 
-  if (!name || !email || !password) {
-    return res.status(401).json({
-      success: false,
-      message: "All fields required",
-    });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (user) {
+    if (!name || !email || !password) {
       return res.status(401).json({
         success: false,
-        message: "User already registered",
+        message: "All fields required",
       });
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
+    try {
+      const user = await User.findOne({ email });
 
-    user.name = name;
-    user.email = email;
-    user.password = password;
+      if (user) {
+        return res.status(401).json({
+          success: false,
+          message: "User already registered",
+        });
+      }
 
-    // send token to user and set it to database
-    user.verificationToken = token;
+      const token = crypto.randomBytes(32).toString("hex");
 
-    // save database
-    user.save();
+      user.name = name;
+      user.email = email;
+      user.password = password;
 
-    // send mail todo
+      // send token to user and set it to database
+      user.verificationToken = token;
 
-    res.status(200).json({
-      success: true,
-      message: "User registered successfully",
-    });
-  } catch (error) {
-    console.error("error in register controller", error);
-  }
-};
+      // save database
+      user.save();
 
+      // send mail todo
+
+      res.status(200).json({
+        success: true,
+        message: "User registered successfully",
+      });
+    } catch (error) {
+      console.error("error in register controller", error);
+    }
+  };
+})
 const verifyUser = async (req, res) => {
   // get token from params
   // compare the params token with databse token
@@ -187,7 +189,9 @@ const resetPassword = async (req, res) => {
 
     user.password = password;
     user.save();
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error in reset password controller: ", error);
+  }
 };
 
 export { register, verifyUser, login, forgetPassword, resetPassword, home };

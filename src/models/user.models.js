@@ -104,6 +104,7 @@ userSchema.methods.generateTemporaryToken = function () {
     .update(unhasedToken)
     .digest("hex");
   const tokenExpiry = Date.now() + 20 * 60 * 100; // current date + 20 mins -> 20mins token Expiry
+
   return { unhasedToken, hashedToken, tokenExpiry };
 };
 
