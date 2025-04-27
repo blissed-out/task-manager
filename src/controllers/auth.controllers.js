@@ -82,40 +82,42 @@ const verifyUser = asyncHandler(async () => {
   };
 });
 
-const login = async (req, res) => {
-  // get data
-  // validate data
-  // use jsonwebtoken cookies
-  const { email, password } = req.body;
+const login = asyncHandler(() => {
+  async (req, res) => {
+    // get data
+    // validate data
+    // use jsonwebtoken cookies
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(401).json({
+    if (!email || !password) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not registered",
+      });
+    }
+
+    if (user.password != password) {
+      return res.status(401).json({
+        success: false,
+        message: "Wrong password",
+      });
+    }
+
+    res.status(200).json({
       success: false,
-      message: "Invalid email or password",
+      message: "Login successful",
     });
-  }
-
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: "User not registered",
-    });
-  }
-
-  if (user.password != password) {
-    return res.status(401).json({
-      success: false,
-      message: "Wrong password",
-    });
-  }
-
-  res.status(200).json({
-    success: false,
-    message: "Login successful",
-  });
-};
+  };
+});
 
 const forgetPassword = async (req, res) => {
   // get email
