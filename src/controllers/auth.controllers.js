@@ -21,37 +21,33 @@ const register = asyncHandler(() => {
       });
     }
 
-    try {
-      const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-      if (user) {
-        return res.status(401).json({
-          success: false,
-          message: "User already registered",
-        });
-      }
-
-      const token = crypto.randomBytes(32).toString("hex");
-
-      user.name = name;
-      user.email = email;
-      user.password = password;
-
-      // send token to user and set it to database
-      user.verificationToken = token;
-
-      // save database
-      user.save();
-
-      // send mail todo
-
-      res.status(200).json({
-        success: true,
-        message: "User registered successfully",
+    if (user) {
+      return res.status(401).json({
+        success: false,
+        message: "User already registered",
       });
-    } catch (error) {
-      console.error("error in register controller", error);
     }
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    user.name = name;
+    user.email = email;
+    user.password = password;
+
+    // send token to user and set it to database
+    user.verificationToken = token;
+
+    // save database
+    user.save();
+
+    // send mail todo
+
+    res.status(200).json({
+      success: true,
+      message: "User registered successfully",
+    });
   };
 });
 const verifyUser = async (req, res) => {
