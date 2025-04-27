@@ -125,32 +125,28 @@ const forgetPassword = async (req, res) => {
   // validate email
   // store the resetPassword token in database, and send to user through mail
 
-  try {
-    const user = await User.findOne({ email });
+  const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not registered",
-      });
-    }
-
-    // token = resetPasswordToken
-    const token = crypto.randomBytes(32).toString("hex");
-
-    user.resetPasswordToken = token; // set to database
-
-    // save database
-    user.save();
-    sendMail(forgetPassword, token); // TODO: send token to user through nodemailer
-
-    res.status(200).json({
+  if (!user) {
+    return res.status(401).json({
       success: false,
-      message: "forget password successfull",
+      message: "User not registered",
     });
-  } catch (error) {
-    console.error("Error in forgetPassword controller", error);
   }
+
+  // token = resetPasswordToken
+  const token = crypto.randomBytes(32).toString("hex");
+
+  user.resetPasswordToken = token; // set to database
+
+  // save database
+  user.save();
+  sendMail(forgetPassword, token); // TODO: send token to user through nodemailer
+
+  res.status(200).json({
+    success: false,
+    message: "forget password successfull",
+  });
 };
 
 const resetPassword = async (req, res) => {
