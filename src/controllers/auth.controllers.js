@@ -21,7 +21,6 @@ const register = asyncHandler(() => {
       });
     }
 
-    try {
       const user = await User.findOne({ email });
 
       if (user) {
@@ -49,9 +48,6 @@ const register = asyncHandler(() => {
         success: true,
         message: "User registered successfully",
       });
-    } catch (error) {
-      console.error("error in register controller", error);
-    }
   };
 })
 const verifyUser = async (req, res) => {
