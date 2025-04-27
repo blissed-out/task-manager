@@ -7,7 +7,7 @@ const home = async (req, res) => {
 };
 
 const register = asyncHandler(() => {
-  (req, res) => {
+  async (req, res) => {
     const { name, email, password } = req.body;
     // get data from user
     // validate data
@@ -21,6 +21,7 @@ const register = asyncHandler(() => {
       });
     }
 
+    try {
       const user = await User.findOne({ email });
 
       if (user) {
@@ -48,8 +49,11 @@ const register = asyncHandler(() => {
         success: true,
         message: "User registered successfully",
       });
+    } catch (error) {
+      console.error("error in register controller", error);
+    }
   };
-})
+});
 const verifyUser = async (req, res) => {
   // get token from params
   // compare the params token with databse token
