@@ -50,6 +50,7 @@ const register = asyncHandler(() => {
     });
   };
 });
+
 const verifyUser = asyncHandler(async () => {
   async (req, res) => {
     // get token from params
@@ -82,7 +83,7 @@ const verifyUser = asyncHandler(async () => {
   };
 });
 
-const userLogin = asyncHandler(() => {
+const loginUser = asyncHandler(() => {
   async (req, res) => {
     // get data
     // validate data
@@ -188,7 +189,6 @@ const resetPassword = async (req, res) => {
 
   user.password = password;
   user.save();
-  console.error("Error in reset password controller: ", error);
 };
 
-export { register, verifyUser, userLogin, forgetPassword, resetPassword, home };
+export { register, verifyUser, loginUser, forgetPassword, resetPassword, home };
