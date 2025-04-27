@@ -168,30 +168,27 @@ const resetPassword = async (req, res) => {
     });
   }
 
-  try {
-    const user = await findOne({ resetPasswordToken: token });
+  const user = await findOne({ resetPasswordToken: token });
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token",
-      });
-    }
-
-    // let user change password
-
-    const { password, confirm_password } = req.body;
-
-    if (password != confirm_password)
-      return res
-        .stauts(401)
-        .json({ success: false, message: "Password do not match" });
-
-    user.password = password;
-    user.save();
-  } catch (error) {
-    console.error("Error in reset password controller: ", error);
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
   }
+
+  // let user change password
+
+  const { password, confirm_password } = req.body;
+
+  if (password != confirm_password)
+    return res
+      .stauts(401)
+      .json({ success: false, message: "Password do not match" });
+
+  user.password = password;
+  user.save();
+  console.error("Error in reset password controller: ", error);
 };
 
 export { register, verifyUser, userLogin, forgetPassword, resetPassword, home };
