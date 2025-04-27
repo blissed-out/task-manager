@@ -189,6 +189,11 @@ const resetPassword = async (req, res) => {
 
   user.password = password;
   user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password reset successful",
+  });
 };
 
 export { register, verifyUser, loginUser, forgetPassword, resetPassword, home };
