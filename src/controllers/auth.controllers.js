@@ -168,7 +168,7 @@ const resetPassword = async (req, res) => {
     });
   }
 
-  const user = await findOne({ resetPasswordToken: token });
+  const user = await User.findOne({ resetPasswordToken: token });
 
   if (!user) {
     return res.status(401).json({
