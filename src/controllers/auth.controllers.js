@@ -82,7 +82,7 @@ const verifyUser = asyncHandler(async () => {
   };
 });
 
-const login = asyncHandler(() => {
+const userLogin = asyncHandler(() => {
   async (req, res) => {
     // get data
     // validate data
@@ -194,4 +194,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { register, verifyUser, login, forgetPassword, resetPassword, home };
+export { register, verifyUser, userLogin, forgetPassword, resetPassword, home };
