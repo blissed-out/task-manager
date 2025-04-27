@@ -50,35 +50,37 @@ const register = asyncHandler(() => {
     });
   };
 });
-const verifyUser = async (req, res) => {
-  // get token from params
-  // compare the params token with databse token
-  // if not match: return error response
-  // set isVerified to true
-  // remove verification token from database
+const verifyUser = asyncHandler(async () => {
+  async (req, res) => {
+    // get token from params
+    // compare the params token with databse token
+    // if not match: return error response
+    // set isVerified to true
+    // remove verification token from database
 
-  const { token } = req.params;
+    const { token } = req.params;
 
-  if (!token) {
-    res.status(401).json({
-      success: false,
-      message: "Token not found",
-    });
-  }
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        message: "Token not found",
+      });
+    }
 
-  const user = await User.findOne({ verificationToken: token });
+    const user = await User.findOne({ verificationToken: token });
 
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid token",
-    });
-  }
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token",
+      });
+    }
 
-  user.isVerified = true;
-  user.verificationToken = undefined;
-  user.save();
-};
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.save();
+  };
+});
 
 const login = async (req, res) => {
   // get data
