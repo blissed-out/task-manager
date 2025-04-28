@@ -1,7 +1,11 @@
 import User from "../models/user.model.js";
 import crypto from "crypto";
 import asyncHandler from "../utils/async_handler.js";
-import { sendMail, emailVerificationContent } from "../utils/mail.js";
+import {
+    sendMail,
+    emailVerificationContent,
+    forgetPasswordMailContent,
+} from "../utils/mail.js";
 
 const home = async (req, res) => {
     res.send("this is home page sisters and brothers");
@@ -147,7 +151,12 @@ const forgetPassword = asyncHandler(() => {
 
         // save database
         user.save();
-        sendMail(forgetPassword, token); // TODO: send token to user through nodemailer
+
+        // send forget password mail
+        const forgetPasswordUrl = `process.env.HOST/api/v1/users/forgetPassword/${token}`;
+        sendMail({
+            mailgenContent: forgetPasswordMailContent(email, forgetPasswordUrl),
+        });
 
         res.status(200).json({
             success: true,
