@@ -153,7 +153,7 @@ const forgetPassword = asyncHandler(() => {
         user.save();
 
         // send forget password mail
-        const forgetPasswordUrl = `process.env.HOST/api/v1/users/forgetPassword/${token}`;
+        const forgetPasswordUrl = `process.env.HOST/api/v1/users/resetPassword/${token}`;
         sendMail({
             mailgenContent: forgetPasswordMailContent(email, forgetPasswordUrl),
         });
