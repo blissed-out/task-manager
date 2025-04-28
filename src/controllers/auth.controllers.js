@@ -122,6 +122,15 @@ const loginUser = asyncHandler(() => {
             });
         }
 
+        const token = User.generateAccessToken;
+
+        const cookieOptions = {
+            httpOnly: true,
+            maxAge: 1 * 60 * 1000,
+        };
+
+        res.cookie("token", token, cookieOptions);
+
         res.status(200).json({
             success: true,
             message: "Login successful",
