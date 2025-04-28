@@ -22,7 +22,7 @@ const email = {
             button: {
                 color: "#22BC66", // Optional action button color
                 text: "Confirm your account",
-                link: `localhost/api/v1/users/verify/${token}`,
+                link: `127.0.0.1/api/v1/users/verify/${token}`,
             },
         },
         outro: "Need help, or have questions? Just reply to this email, we'd love to help.",
