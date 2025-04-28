@@ -144,8 +144,8 @@ const forgetPassword = async (req, res) => {
   sendMail(forgetPassword, token); // TODO: send token to user through nodemailer
 
   res.status(200).json({
-    success: false,
-    message: "forget password successfull",
+    success: true,
+    message: "forget password successful",
   });
 };
 
