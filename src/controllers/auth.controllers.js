@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import crypto from "crypto";
 import asyncHandler from "../utils/async_handler.js";
+import { sendMail, emailVerificationContent } from "../utils/mail.js";
 
 const home = async (req, res) => {
     res.send("this is home page sisters and brothers");
@@ -42,7 +43,11 @@ const register = asyncHandler(() => {
         // save database
         user.save();
 
-        // send mail todo
+        // send mail
+        const verificationUrl = `process.env.HOST/api/v1/users/verify/${token}`;
+        sendMail({
+            mailgenContent: emailVerificationContent(email, verificationUrl),
+        });
 
         res.status(200).json({
             success: true,
