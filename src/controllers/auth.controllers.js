@@ -109,7 +109,7 @@ const loginUser = asyncHandler(() => {
     if (user.password != password) {
       return res.status(401).json({
         success: false,
-        message: "Wrong password",
+        message: "Password do not match",
       });
     }
 
