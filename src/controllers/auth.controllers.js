@@ -51,7 +51,7 @@ const register = asyncHandler(() => {
   };
 });
 
-const verifyUser = asyncHandler(async () => {
+const verifyUser = asyncHandler(() => {
   async (req, res) => {
     // get token from params
     // compare the params token with databse token
