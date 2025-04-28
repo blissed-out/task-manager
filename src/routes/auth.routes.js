@@ -1,10 +1,10 @@
 import {
-  home,
-  register,
-  forgetPassword,
-  login,
-  resetPassword,
-  verifyUser,
+    home,
+    register,
+    forgetPassword,
+    login,
+    resetPassword,
+    verifyUser,
 } from "../controllers/auth.controller.js";
 
 import { Router } from "express";
