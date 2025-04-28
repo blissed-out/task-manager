@@ -125,6 +125,7 @@ const forgetPassword = asyncHandler(() => {
         // get email
         // validate email
         // store the resetPassword token in database, and send to user through mail
+        const { email } = req.body;
         const user = await User.findOne({ email });
 
         if (!user) {
