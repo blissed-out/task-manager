@@ -217,4 +217,19 @@ const resetPassword = async (req, res) => {
     });
 };
 
-export { register, verifyUser, loginUser, forgetPassword, resetPassword, home };
+const getme = async (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "get profile successful",
+    });
+};
+
+export {
+    register,
+    verifyUser,
+    loginUser,
+    forgetPassword,
+    resetPassword,
+    home,
+    getme,
+};
