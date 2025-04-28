@@ -114,7 +114,7 @@ const loginUser = asyncHandler(() => {
     }
 
     res.status(200).json({
-      success: false,
+      success: true,
       message: "Login successful",
     });
   };
