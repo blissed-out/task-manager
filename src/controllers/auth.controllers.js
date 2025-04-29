@@ -12,13 +12,13 @@ const home = async (req, res) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name: username, email, password } = req.body;
     // get data from user
     // validate data
     // store in database (hash the password)
     // send response
-    console.log("registerUser");
-    if (!name || !email || !password) {
+
+    if (!username || !email || !password) {
         return res.status(401).json({
             success: false,
             message: "All fields required",
@@ -36,7 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const token = crypto.randomBytes(32).toString("hex");
 
-    user.name = name;
+    user.username = username;
     user.email = email;
     user.password = password;
 
