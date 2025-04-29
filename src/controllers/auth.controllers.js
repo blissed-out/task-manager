@@ -39,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const token = crypto.randomBytes(32).toString("hex");
 
     // send token to user and set it to database
-    user.verificationToken = token;
+    user.emailVerificationToken = token;
 
     // save database
     user.save();
@@ -72,7 +72,7 @@ const verifyUser = asyncHandler(async (req, res) => {
         });
     }
 
-    const user = await User.findOne({ verificationToken: token });
+    const user = await User.findOne({ emailVerificationToken: token });
 
     if (!user) {
         return res.status(401).json({
@@ -82,7 +82,7 @@ const verifyUser = asyncHandler(async (req, res) => {
     }
 
     user.isVerified = true;
-    user.verificationToken = undefined;
+    user.emailVerificationToken = undefined;
     user.save();
 });
 
