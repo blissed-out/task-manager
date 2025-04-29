@@ -1,21 +1,21 @@
 import {
     home,
-    register,
+    registerUser,
     forgetPassword,
-    login,
+    loginUser,
     resetPassword,
     verifyUser,
-} from "../controllers/auth.controller.js";
+} from "../controllers/auth.controllers.js";
 
 import { Router } from "express";
 import { isLoggedIn } from "../middlewares/login.middleware.js";
 
 const route = Router();
 route.get("/", home);
-route.post("/register", register);
+route.post("/register", registerUser);
 route.get("/verify:token", verifyUser);
 route.post("/forgetPassword", forgetPassword);
 route.get("/resetPassword/:token", resetPassword);
-route.post("/login", isLoggedIn, login);
+route.post("/login", isLoggedIn, loginUser);
 
 export default route;

@@ -1,4 +1,4 @@
-import User from "../models/user.model.js";
+import User from "../models/user.models.js";
 import crypto from "crypto";
 import asyncHandler from "../utils/async_handler.js";
 import {
@@ -11,7 +11,7 @@ const home = async (req, res) => {
     res.send("this is home page sisters and brothers");
 };
 
-const register = asyncHandler(() => {
+const registerUser = asyncHandler(() => {
     async (req, res) => {
         const { name, email, password } = req.body;
         // get data from user
@@ -217,7 +217,7 @@ const resetPassword = async (req, res) => {
     });
 };
 
-const getme = async (req, res) => {
+const getUser = async (req, res) => {
     res.status(200).json({
         success: true,
         message: "get profile successful",
@@ -225,11 +225,11 @@ const getme = async (req, res) => {
 };
 
 export {
-    register,
+    registerUser,
     verifyUser,
     loginUser,
     forgetPassword,
     resetPassword,
+    getUser,
     home,
-    getme,
 };
