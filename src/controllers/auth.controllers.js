@@ -12,7 +12,7 @@ const home = async (req, res) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { name: username, email, password } = req.body;
+    const { username, email, password } = req.body;
     // get data from user
     // validate data
     // store in database (hash the password)
@@ -34,11 +34,9 @@ const registerUser = asyncHandler(async (req, res) => {
         });
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
+    User.insertOne({ username, email, password });
 
-    user.username = username;
-    user.email = email;
-    user.password = password;
+    const token = crypto.randomBytes(32).toString("hex");
 
     // send token to user and set it to database
     user.verificationToken = token;
