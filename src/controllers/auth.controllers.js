@@ -11,85 +11,81 @@ const home = async (req, res) => {
     res.send("this is home page sisters and brothers");
 };
 
-const registerUser = asyncHandler(() => {
-    async (req, res) => {
-        const { name, email, password } = req.body;
-        // get data from user
-        // validate data
-        // store in database (hash the password)
-        // send response
-
-        if (!name || !email || !password) {
-            return res.status(401).json({
-                success: false,
-                message: "All fields required",
-            });
-        }
-
-        const user = await User.findOne({ email });
-
-        if (user) {
-            return res.status(401).json({
-                success: false,
-                message: "User already registered",
-            });
-        }
-
-        const token = crypto.randomBytes(32).toString("hex");
-
-        user.name = name;
-        user.email = email;
-        user.password = password;
-
-        // send token to user and set it to database
-        user.verificationToken = token;
-
-        // save database
-        user.save();
-
-        // send mail
-        const verificationUrl = `process.env.HOST/api/v1/users/verify/${token}`;
-        sendMail({
-            mailgenContent: emailVerificationContent(email, verificationUrl),
+const registerUser = asyncHandler(async (req, res) => {
+    const { name, email, password } = req.body;
+    // get data from user
+    // validate data
+    // store in database (hash the password)
+    // send response
+    console.log("registerUser");
+    if (!name || !email || !password) {
+        return res.status(401).json({
+            success: false,
+            message: "All fields required",
         });
+    }
 
-        res.status(200).json({
-            success: true,
-            message: "User registered successfully",
+    const user = await User.findOne({ email });
+
+    if (user) {
+        return res.status(401).json({
+            success: false,
+            message: "User already registered",
         });
-    };
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    user.name = name;
+    user.email = email;
+    user.password = password;
+
+    // send token to user and set it to database
+    user.verificationToken = token;
+
+    // save database
+    user.save();
+
+    // send mail
+    const verificationUrl = `process.env.HOST/api/v1/users/verify/${token}`;
+    sendMail({
+        mailgenContent: emailVerificationContent(email, verificationUrl),
+    });
+
+    res.status(200).json({
+        success: true,
+        message: "User registered successfully",
+    });
 });
 
-const verifyUser = asyncHandler(() => {
-    async (req, res) => {
-        // get token from params
-        // compare the params token with databse token
-        // if not match: return error response
-        // set isVerified to true
-        // remove verification token from database
+const verifyUser = asyncHandler(async (req, res) => {
+    // get token from params
+    // compare the params token with databse token
+    // if not match: return error response
+    // set isVerified to true
+    // remove verification token from database
 
-        const { token } = req.params;
+    const { token } = req.params;
 
-        if (!token) {
-            res.status(401).json({
-                success: false,
-                message: "Token not found",
-            });
-        }
+    if (!token) {
+        res.status(401).json({
+            success: false,
+            message: "Token not found",
+        });
+    }
 
-        const user = await User.findOne({ verificationToken: token });
+    const user = await User.findOne({ verificationToken: token });
 
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid token",
-            });
-        }
+    if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid token",
+        });
+    }
 
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        user.save();
-    };
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.save();
 });
 
 const loginUser = asyncHandler(() => {
@@ -138,40 +134,38 @@ const loginUser = asyncHandler(() => {
     };
 });
 
-const forgetPassword = asyncHandler(() => {
-    async (req, res) => {
-        // get email
-        // validate email
-        // store the resetPassword token in database, and send to user through mail
-        const { email } = req.body;
-        const user = await User.findOne({ email });
+const forgetPassword = asyncHandler(async (req, res) => {
+    // get email
+    // validate email
+    // store the resetPassword token in database, and send to user through mail
+    const { email } = req.body;
+    const user = await User.findOne({ email });
 
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not registered",
-            });
-        }
-
-        // token = resetPasswordToken
-        const token = crypto.randomBytes(32).toString("hex");
-
-        user.resetPasswordToken = token; // set to database
-
-        // save database
-        user.save();
-
-        // send forget password mail
-        const forgetPasswordUrl = `process.env.HOST/api/v1/users/resetPassword/${token}`;
-        sendMail({
-            mailgenContent: forgetPasswordMailContent(email, forgetPasswordUrl),
+    if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: "User not registered",
         });
+    }
 
-        res.status(200).json({
-            success: true,
-            message: "forget password successful",
-        });
-    };
+    // token = resetPasswordToken
+    const token = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = token; // set to database
+
+    // save database
+    user.save();
+
+    // send forget password mail
+    const forgetPasswordUrl = `process.env.HOST/api/v1/users/resetPassword/${token}`;
+    sendMail({
+        mailgenContent: forgetPasswordMailContent(email, forgetPasswordUrl),
+    });
+
+    res.status(200).json({
+        success: true,
+        message: "forget password successful",
+    });
 });
 
 const resetPassword = async (req, res) => {
