@@ -34,15 +34,15 @@ const registerUser = asyncHandler(async (req, res) => {
         });
     }
 
-    User.insertOne({ username, email, password });
+    const createdUser = new User({ username, email, password });
 
     const token = crypto.randomBytes(32).toString("hex");
 
     // send token to user and set it to database
-    user.emailVerificationToken = token;
+    createdUser.emailVerificationToken = token;
 
     // save database
-    user.save();
+    createdUser.save();
 
     // send mail
     const verificationUrl = `process.env.HOST/api/v1/users/verify/${token}`;
