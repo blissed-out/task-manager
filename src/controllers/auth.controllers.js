@@ -168,7 +168,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
     });
 });
 
-const resetPassword = async (req, res) => {
+const resetPassword = asyncHandler(async (req, res) => {
     // get data
     // validate data
     // let user change password
@@ -209,7 +209,7 @@ const resetPassword = async (req, res) => {
         success: true,
         message: "Password reset successful",
     });
-};
+});
 
 const getUser = async (req, res) => {
     res.status(200).json({
