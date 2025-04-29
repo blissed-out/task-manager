@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
+import dotenv from "dotenv";
+
+dotenv.config("./");
 
 const sendMail = async (options) => {
     const mailGenerator = new Mailgen({
