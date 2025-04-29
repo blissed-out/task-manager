@@ -7,7 +7,7 @@ const userSchema = new Schema(
     {
         id: {
             type: Number,
-            required: true,
+            required: false,
         },
 
         avatar: {
@@ -39,7 +39,7 @@ const userSchema = new Schema(
 
         fullname: {
             type: String,
-            required: true,
+            required: false,
         },
 
         password: {
