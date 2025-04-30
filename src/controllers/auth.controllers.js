@@ -50,10 +50,12 @@ const registerUser = asyncHandler(async (req, res) => {
         mailgenContent: emailVerificationContent(username, verificationUrl),
         userEmail: email,
     });
+
     const data = {
         username: username,
         email: email,
     };
+
     res.status(200).json(
         new ApiResponse(200, data, "User registered successfully"),
     );
@@ -69,38 +71,33 @@ const verifyUser = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        res.status(401).json({
-            success: false,
-            message: "Token not found",
-        });
+        return res.status(401).json(new ApiError(401, "Token not found"));
     }
 
     const user = await User.findOne({ emailVerificationToken: token });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid token",
-        });
+        return res.status(401).json(new ApiError(401, "Invalid token"));
     }
 
     // check expiry of the token
     if (user.emailVerificationExpiry <= Date.now()) {
         user.emailVerificationExpiry = undefined;
-        return res.status(401).json({
-            success: false,
-            message: "Token Expired",
-        });
+        return res.status(401).json(new ApiError(401, "Token Expired"));
     }
+
+    const data = {
+        email: user.email,
+        username: user.username,
+    };
 
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
     user.save();
 
-    return res.status(200).json({
-        success: true,
-        message: "user verified successfully",
-    });
+    return res
+        .status(200)
+        .json(new ApiResponse(200, data, "User registered successfully "));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
