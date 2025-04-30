@@ -115,21 +115,18 @@ const loginUser = asyncHandler(async (req, res) => {
             message: "User not registered",
         });
     }
-
-    if (user.password != password) {
+    if (!(await user.isPasswordCorrect(password))) {
         return res.status(401).json({
             success: false,
             message: "Password do not match",
         });
     }
-
     const token = User.generateAccessToken;
 
     const cookieOptions = {
         httpOnly: true,
         maxAge: 1 * 60 * 1000,
     };
-
     res.cookie("token", token, cookieOptions);
 
     res.status(200).json({
