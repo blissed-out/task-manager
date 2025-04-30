@@ -1,5 +1,8 @@
 import User from "../models/user.models.js";
 import asyncHandler from "../utils/async_handler.js";
+import ApiResponse from "../utils/api-response.js";
+import ApiError from "../utils/api-error.js";
+
 import {
     sendMail,
     emailVerificationContent,
@@ -18,19 +21,15 @@ const registerUser = asyncHandler(async (req, res) => {
     // send response
 
     if (!username || !email || !password) {
-        return res.status(401).json({
-            success: false,
-            message: "All fields required",
-        });
+        return res.status(401).json(new ApiError(401, "All fields requried"));
     }
 
     const user = await User.findOne({ email });
 
     if (user) {
-        return res.status(401).json({
-            success: false,
-            message: "User already registered",
-        });
+        return res
+            .status(401)
+            .json(new ApiError(401, "User already registered"));
     }
 
     const createdUser = new User({ username, email, password });
@@ -51,11 +50,13 @@ const registerUser = asyncHandler(async (req, res) => {
         mailgenContent: emailVerificationContent(username, verificationUrl),
         userEmail: email,
     });
-
-    res.status(200).json({
-        success: true,
-        message: "User registered successfully",
-    });
+    const data = {
+        username: username,
+        email: email,
+    };
+    res.status(200).json(
+        new ApiResponse(200, data, "User registered successfully"),
+    );
 });
 
 const verifyUser = asyncHandler(async (req, res) => {
