@@ -45,9 +45,10 @@ const registerUser = asyncHandler(async (req, res) => {
     createdUser.save();
 
     // send mail
-    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/verify:${token}`;
+    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/verify/${token}`;
     sendMail({
-        mailgenContent: emailVerificationContent(email, verificationUrl),
+        mailgenContent: emailVerificationContent(username, verificationUrl),
+        userEmail: email,
     });
 
     res.status(200).json({
@@ -74,6 +75,8 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ emailVerificationToken: token });
 
+    console.log("user", user);
+
     if (!user) {
         return res.status(401).json({
             success: false,
@@ -81,9 +84,14 @@ const verifyUser = asyncHandler(async (req, res) => {
         });
     }
 
-    user.isVerified = true;
+    user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
     user.save();
+
+    return res.status(200).json({
+        success: true,
+        message: "user verified successfully",
+    });
 });
 
 const loginUser = asyncHandler(() => {

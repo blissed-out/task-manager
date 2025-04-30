@@ -31,7 +31,7 @@ const sendMail = async (options) => {
     // since it's not critical to business logic, we will throw silent error instead of breaking incase it fails
     try {
         const info = await transporter.sendMail({
-            from: options.senderMail,
+            from: "none@blissful.com",
             to: options.userEmail,
             subject: "Reset your password",
             text: emailText,
