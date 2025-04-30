@@ -143,10 +143,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "User not registered",
-        });
+        return res.status(401).json(new ApiError(401, "User not registered"));
     }
 
     const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
@@ -167,10 +164,9 @@ const forgetPassword = asyncHandler(async (req, res) => {
     // save database
     user.save();
 
-    res.status(200).json({
-        success: true,
-        message: "forget password successful",
-    });
+    res.status(200).json(
+        new ApiResponse(200, email, "reset password link sent"),
+    );
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
