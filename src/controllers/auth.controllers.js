@@ -125,8 +125,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const token = user.generateAccessToken();
 
-    console.log("generateAccessToken", token);
-
     const cookieOptions = {
         httpOnly: true,
         maxAge: 1 * 60 * 1000,
@@ -153,19 +151,23 @@ const forgetPassword = asyncHandler(async (req, res) => {
         });
     }
 
-    // token = resetPasswordToken
-    const token = crypto.randomBytes(32).toString("hex");
+    const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
 
-    user.resetPasswordToken = token; // set to database
+    const forgetPasswordUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/resetPassword/${unhashedToken}`;
+
+    sendMail({
+        mailgenContent: forgetPasswordMailContent(
+            user.username,
+            forgetPasswordUrl,
+        ),
+        userEmail: email,
+    });
+
+    user.forgetPasswordToken = unhashedToken;
+    user.forgetPasswordExpiry = tokenExpiry;
 
     // save database
     user.save();
-
-    // send forget password mail
-    const forgetPasswordUrl = `process.env.HOST/api/v1/users/resetPassword/${token}`;
-    sendMail({
-        mailgenContent: forgetPasswordMailContent(email, forgetPasswordUrl),
-    });
 
     res.status(200).json({
         success: true,
@@ -189,7 +191,7 @@ const resetPassword = asyncHandler(async (req, res) => {
         });
     }
 
-    const user = await User.findOne({ resetPasswordToken: token });
+    const user = await User.findOne({ forgetPasswordToken: token });
 
     if (!user) {
         return res.status(401).json({
@@ -200,9 +202,16 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     // let user change password
 
-    const { password, confirm_password } = req.body;
+    const { password, confirmPassword } = req.body;
 
-    if (password != confirm_password)
+    if (!password || !confirmPassword) {
+        return res.status(401).json({
+            success: false,
+            message: "All fields required",
+        });
+    }
+
+    if (password != confirmPassword)
         return res
             .stauts(401)
             .json({ success: false, message: "Password do not match" });
