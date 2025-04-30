@@ -98,14 +98,16 @@ userSchema.methods.generateAccessToken = function () {
 };
 
 userSchema.methods.generateTemporaryToken = function () {
-    const unhasedToken = crypto.randomBytes(20).toString("hex");
-    const hashedToken = crypto
-        .createHash("sha265")
-        .update(unhasedToken)
-        .digest("hex");
+    const unhashedToken = crypto.randomBytes(20).toString("hex");
+
+    // const hashedToken = crypto
+    //     .createHash("sha265")
+    //     .update(unhashedToken)
+    //     .digest("hex");
+
     const tokenExpiry = Date.now() + 20 * 60 * 100; // current date + 20 mins -> 20mins token Expiry
 
-    return { unhasedToken, hashedToken, tokenExpiry };
+    return { unhashedToken, tokenExpiry };
 };
 
 const User = mongoose.model("User", userSchema);

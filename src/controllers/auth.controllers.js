@@ -1,6 +1,8 @@
 import User from "../models/user.models.js";
-import crypto from "crypto";
 import asyncHandler from "../utils/async_handler.js";
+import ApiResponse from "../utils/api-response.js";
+import ApiError from "../utils/api-error.js";
+
 import {
     sendMail,
     emailVerificationContent,
@@ -19,27 +21,25 @@ const registerUser = asyncHandler(async (req, res) => {
     // send response
 
     if (!username || !email || !password) {
-        return res.status(401).json({
-            success: false,
-            message: "All fields required",
-        });
+        return res.status(401).json(new ApiError(401, "All fields requried"));
     }
 
     const user = await User.findOne({ email });
 
     if (user) {
-        return res.status(401).json({
-            success: false,
-            message: "User already registered",
-        });
+        return res
+            .status(401)
+            .json(new ApiError(401, "User already registered"));
     }
 
     const createdUser = new User({ username, email, password });
 
-    const token = crypto.randomBytes(32).toString("hex");
+    // const token = crypto.randomBytes(32).toString("hex");
+    const { unhashedToken, tokenExpiry } = createdUser.generateTemporaryToken();
 
     // send token to user and set it to database
-    createdUser.emailVerificationToken = token;
+    createdUser.emailVerificationToken = unhashedToken;
+    createdUser.emailVerificationExpiry = tokenExpiry;
 
     // save database
     createdUser.save();
@@ -51,10 +51,14 @@ const registerUser = asyncHandler(async (req, res) => {
         userEmail: email,
     });
 
-    res.status(200).json({
-        success: true,
-        message: "User registered successfully",
-    });
+    const data = {
+        username: username,
+        email: email,
+    };
+
+    res.status(200).json(
+        new ApiResponse(200, data, "User registered successfully"),
+    );
 });
 
 const verifyUser = asyncHandler(async (req, res) => {
@@ -67,31 +71,33 @@ const verifyUser = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        res.status(401).json({
-            success: false,
-            message: "Token not found",
-        });
+        return res.status(401).json(new ApiError(401, "Token not found"));
     }
 
     const user = await User.findOne({ emailVerificationToken: token });
 
-    console.log("user", user);
-
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid token",
-        });
+        return res.status(401).json(new ApiError(401, "Invalid token"));
     }
+
+    // check expiry of the token
+    if (user.emailVerificationExpiry <= Date.now()) {
+        user.emailVerificationExpiry = undefined;
+        return res.status(401).json(new ApiError(401, "Token Expired"));
+    }
+
+    const data = {
+        email: user.email,
+        username: user.username,
+    };
 
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
     user.save();
 
-    return res.status(200).json({
-        success: true,
-        message: "user verified successfully",
-    });
+    return res
+        .status(200)
+        .json(new ApiResponse(200, data, "User registered successfully "));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -101,31 +107,22 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid email or password",
-        });
+        return res
+            .status(401)
+            .json(new ApiError(401, "All fields are required"));
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "User not registered",
-        });
+        return res.status(401).json(new ApiError(401, "User not registered"));
     }
 
     if (!(await user.isPasswordCorrect(password))) {
-        return res.status(401).json({
-            success: false,
-            message: "Password do not match",
-        });
+        return res.status(401).json(new ApiError(401, "Password do not match"));
     }
 
     const token = user.generateAccessToken();
-
-    console.log("generateAccessToken", token);
 
     const cookieOptions = {
         httpOnly: true,
@@ -133,10 +130,9 @@ const loginUser = asyncHandler(async (req, res) => {
     };
     res.cookie("token", token, cookieOptions);
 
-    res.status(200).json({
-        success: true,
-        message: "Login successful",
-    });
+    res.status(200).json(
+        new ApiResponse(200, { message: "Login successfull" }),
+    );
 });
 
 const forgetPassword = asyncHandler(async (req, res) => {
@@ -147,30 +143,30 @@ const forgetPassword = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "User not registered",
-        });
+        return res.status(401).json(new ApiError(401, "User not registered"));
     }
 
-    // token = resetPasswordToken
-    const token = crypto.randomBytes(32).toString("hex");
+    const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
 
-    user.resetPasswordToken = token; // set to database
+    const forgetPasswordUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/resetPassword/${unhashedToken}`;
+
+    sendMail({
+        mailgenContent: forgetPasswordMailContent(
+            user.username,
+            forgetPasswordUrl,
+        ),
+        userEmail: email,
+    });
+
+    user.forgetPasswordToken = unhashedToken;
+    user.forgetPasswordExpiry = tokenExpiry;
 
     // save database
     user.save();
 
-    // send forget password mail
-    const forgetPasswordUrl = `process.env.HOST/api/v1/users/resetPassword/${token}`;
-    sendMail({
-        mailgenContent: forgetPasswordMailContent(email, forgetPasswordUrl),
-    });
-
-    res.status(200).json({
-        success: true,
-        message: "forget password successful",
-    });
+    res.status(200).json(
+        new ApiResponse(200, email, "reset password link sent"),
+    );
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
@@ -183,37 +179,41 @@ const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        return res.status(401).json({
-            success: false,
-            message: "Token not found",
-        });
+        return res.status(401).json(new ApiError(401, "Toke not found"));
     }
 
-    const user = await User.findOne({ resetPasswordToken: token });
+    const user = await User.findOne({ forgetPasswordToken: token });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid token",
-        });
+        return res.status(401).json(new ApiError(401, "Invalid token"));
+    }
+
+    // check expiry time
+    if (user.forgetPasswordExpiry <= Date.now()) {
+        user.forgetPasswordExpiry = undefined;
+        return res.status(401).json(new ApiError(401, "Token Expired"));
     }
 
     // let user change password
 
-    const { password, confirm_password } = req.body;
+    const { password, confirmPassword } = req.body;
 
-    if (password != confirm_password)
+    if (!password || !confirmPassword) {
         return res
-            .stauts(401)
-            .json({ success: false, message: "Password do not match" });
+            .status(401)
+            .json(new ApiError(401, "All fields are required"));
+    }
+
+    if (password != confirmPassword) {
+        return res.status(401).json(new ApiError(401, "Password do not match"));
+    }
 
     user.password = password;
-    user.save();
 
-    res.status(200).json({
-        success: true,
-        message: "Password reset successful",
-    });
+    res.status(200).json(
+        new ApiResponse(200, user.email, "Password reset successful"),
+    );
+    user.save();
 });
 
 const getUser = async (req, res) => {
