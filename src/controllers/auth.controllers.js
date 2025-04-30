@@ -1,5 +1,4 @@
 import User from "../models/user.models.js";
-import crypto from "crypto";
 import asyncHandler from "../utils/async_handler.js";
 import {
     sendMail,
@@ -205,6 +204,14 @@ const resetPassword = asyncHandler(async (req, res) => {
         return res.status(401).json({
             success: false,
             message: "Invalid token",
+        });
+    }
+
+    // check expiry time
+    if (user.forgetPasswordExpiry <= Date.now()) {
+        return res.status(401).json({
+            success: false,
+            message: "Token expired",
         });
     }
 
