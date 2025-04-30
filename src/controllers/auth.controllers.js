@@ -45,7 +45,7 @@ const registerUser = asyncHandler(async (req, res) => {
     createdUser.save();
 
     // send mail
-    const verificationUrl = `process.env.HOST/api/v1/users/verify/${token}`;
+    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/verify:${token}`;
     sendMail({
         mailgenContent: emailVerificationContent(email, verificationUrl),
     });
