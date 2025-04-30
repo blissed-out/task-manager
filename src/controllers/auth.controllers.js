@@ -85,6 +85,7 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     // check expiry of the token
     if (user.emailVerificationExpiry <= Date.now()) {
+        user.emailVerificationExpiry = undefined;
         return res.status(401).json({
             success: false,
             message: "Token Expired",
@@ -209,6 +210,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     // check expiry time
     if (user.forgetPasswordExpiry <= Date.now()) {
+        user.forgetPasswordExpiry = undefined;
         return res.status(401).json({
             success: false,
             message: "Token expired",
