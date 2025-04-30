@@ -13,7 +13,7 @@ import { isLoggedIn } from "../middlewares/login.middleware.js";
 const route = Router();
 route.get("/", home);
 route.post("/register", registerUser);
-route.get("/verify:token", verifyUser);
+route.get("/verify/:token", verifyUser);
 route.post("/forgetPassword", forgetPassword);
 route.get("/resetPassword/:token", resetPassword);
 route.post("/login", isLoggedIn, loginUser);
