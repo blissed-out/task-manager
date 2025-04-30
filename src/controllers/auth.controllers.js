@@ -36,10 +36,12 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const createdUser = new User({ username, email, password });
 
-    const token = crypto.randomBytes(32).toString("hex");
+    // const token = crypto.randomBytes(32).toString("hex");
+    const { unhashedToken, tokenExpiry } = createdUser.generateTemporaryToken();
 
     // send token to user and set it to database
-    createdUser.emailVerificationToken = token;
+    createdUser.emailVerificationToken = unhashedToken;
+    createdUser.emailVerificationExpiry = tokenExpiry;
 
     // save database
     createdUser.save();
@@ -75,12 +77,18 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ emailVerificationToken: token });
 
-    console.log("user", user);
-
     if (!user) {
         return res.status(401).json({
             success: false,
             message: "Invalid token",
+        });
+    }
+
+    // check expiry of the token
+    if (user.emailVerificationExpiry <= Date.now()) {
+        return res.status(401).json({
+            success: false,
+            message: "Token Expired",
         });
     }
 
