@@ -5,6 +5,7 @@ import {
     loginUser,
     resetPassword,
     verifyUser,
+    getUser,
 } from "../controllers/auth.controllers.js";
 
 import { Router } from "express";
@@ -16,6 +17,7 @@ route.post("/register", registerUser);
 route.get("/verify/:token", verifyUser);
 route.post("/forgetPassword", forgetPassword);
 route.get("/resetPassword/:token", resetPassword);
-route.post("/login", isLoggedIn, loginUser);
+route.post("/login", loginUser);
+route.get("/me", isLoggedIn, getUser);
 
 export default route;
