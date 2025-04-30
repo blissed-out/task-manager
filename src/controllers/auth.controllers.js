@@ -179,28 +179,19 @@ const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        return res.status(401).json({
-            success: false,
-            message: "Token not found",
-        });
+        return res.status(401).json(new ApiError(401, "Toke not found"));
     }
 
     const user = await User.findOne({ forgetPasswordToken: token });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid token",
-        });
+        return res.status(401).json(new ApiError(401, "Invalid token"));
     }
 
     // check expiry time
     if (user.forgetPasswordExpiry <= Date.now()) {
         user.forgetPasswordExpiry = undefined;
-        return res.status(401).json({
-            success: false,
-            message: "Token expired",
-        });
+        return res.status(401).json(new ApiError(401, "Token Expired"));
     }
 
     // let user change password
@@ -208,24 +199,21 @@ const resetPassword = asyncHandler(async (req, res) => {
     const { password, confirmPassword } = req.body;
 
     if (!password || !confirmPassword) {
-        return res.status(401).json({
-            success: false,
-            message: "All fields required",
-        });
+        return res
+            .status(401)
+            .json(new ApiError(401, "All fields are required"));
     }
 
-    if (password != confirmPassword)
-        return res
-            .stauts(401)
-            .json({ success: false, message: "Password do not match" });
+    if (password != confirmPassword) {
+        return res.status(401).json(new ApiError(401, "Password do not match"));
+    }
 
     user.password = password;
-    user.save();
 
-    res.status(200).json({
-        success: true,
-        message: "Password reset successful",
-    });
+    res.status(200).json(
+        new ApiResponse(200, user.email, "Password reset successful"),
+    );
+    user.save();
 });
 
 const getUser = async (req, res) => {
