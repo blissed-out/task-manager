@@ -107,26 +107,19 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid email or password",
-        });
+        return res
+            .status(401)
+            .json(new ApiError(401, "All fields are required"));
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: "User not registered",
-        });
+        return res.status(401).json(new ApiError(401, "User not registered"));
     }
 
     if (!(await user.isPasswordCorrect(password))) {
-        return res.status(401).json({
-            success: false,
-            message: "Password do not match",
-        });
+        return res.status(401).json(new ApiError(401, "Password do not match"));
     }
 
     const token = user.generateAccessToken();
@@ -137,10 +130,9 @@ const loginUser = asyncHandler(async (req, res) => {
     };
     res.cookie("token", token, cookieOptions);
 
-    res.status(200).json({
-        success: true,
-        message: "Login successful",
-    });
+    res.status(200).json(
+        new ApiResponse(200, { message: "Login successfull" }),
+    );
 });
 
 const forgetPassword = asyncHandler(async (req, res) => {
