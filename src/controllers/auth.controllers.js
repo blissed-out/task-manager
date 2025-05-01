@@ -45,7 +45,7 @@ const registerUser = asyncHandler(async (req, res) => {
     createdUser.save();
 
     // send mail
-    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/verify/${token}`;
+    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/verify/${unhashedToken}`;
     sendMail({
         mailgenContent: emailVerificationContent(username, verificationUrl),
         userEmail: email,
@@ -97,7 +97,7 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, data, "User registered successfully "));
+        .json(new ApiResponse(200, data, "User verified Successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
