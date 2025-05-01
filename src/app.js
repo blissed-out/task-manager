@@ -1,4 +1,4 @@
-import express from "express";
+import express, { urlencoded } from "express";
 import auth from "./routes/auth.routes.js";
 import healthcheckRouter from "./routes/healthcheck.routes.js";
 import cors from "cors";
@@ -6,7 +6,8 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-app.use(express.json({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
     cors({

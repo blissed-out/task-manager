@@ -119,7 +119,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     if (!(await user.isPasswordCorrect(password))) {
-        return res.status(401).json(new ApiError(401, "Password do not match"));
+        return res.status(401).json(new ApiError(401, "Password not matched"));
     }
 
     const token = user.generateAccessToken();
