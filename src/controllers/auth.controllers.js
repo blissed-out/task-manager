@@ -20,9 +20,9 @@ const registerUser = asyncHandler(async (req, res) => {
     // store in database (hash the password)
     // send response
 
-    if (!username || !email || !password) {
-        return res.status(401).json(new ApiError(401, "All fields requried"));
-    }
+    // if (!username || !email || !password) {
+    //     return res.status(401).json(new ApiError(401, "All fields requried"));
+    // }
 
     const user = await User.findOne({ email });
 

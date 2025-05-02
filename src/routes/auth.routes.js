@@ -7,13 +7,15 @@ import {
     verifyUser,
     getUser,
 } from "../controllers/auth.controllers.js";
+import { registrationValidation } from "../validator/index.js";
+import { validate } from "../middlewares/validator.middleware.js";
 
 import { Router } from "express";
 import { isLoggedIn } from "../middlewares/login.middleware.js";
 
 const route = Router();
 route.get("/", home);
-route.post("/register", registerUser);
+route.post("/register", registrationValidation(), validate(), registerUser);
 route.get("/verify/:token", verifyUser);
 route.post("/forgetPassword", forgetPassword);
 route.get("/resetPassword/:token", resetPassword);
