@@ -13,7 +13,7 @@ import {
     userLoginValidation,
     userForgetPasswordValidation,
     userResetPasswordValidation,
-    userLoginMiddlwareValidation,
+    userLoginMiddlewareValidation,
 } from "../validator/index.js";
 import { validate } from "../middlewares/validator.middleware.js";
 
@@ -31,6 +31,6 @@ route.get(
     resetPassword,
 );
 route.post("/login", userLoginValidation(), loginUser);
-route.get("/me", userLoginMiddlwareValidation(), isLoggedIn, getUser);
+route.get("/me", userLoginMiddlewareValidation(), isLoggedIn, getUser);
 
 export default route;
