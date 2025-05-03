@@ -119,7 +119,7 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!(await user.isPasswordCorrect(password))) {
         return res
             .status(401)
-            .json(new ApiResponse(401, "Password not matched"));
+            .json(new ApiResponse(401, null, "Password not matched"));
     }
 
     const token = user.generateAccessToken();
@@ -128,10 +128,13 @@ const loginUser = asyncHandler(async (req, res) => {
         httpOnly: true,
         maxAge: 1 * 60 * 1000,
     };
+
     res.cookie("token", token, cookieOptions);
 
+    const data = { email };
+
     res.status(200).json(
-        new ApiResponse(200, null, "User loggined succesfully"),
+        new ApiResponse(200, data, "User loggined succesfully"),
     );
 });
 
@@ -198,21 +201,21 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     // let user change password
 
-    const { password, confirmPassword } = req.body;
+    const { new_password, confirm_password } = req.body;
 
-    if (!password || !confirmPassword) {
+    if (!new_password || !confirm_password) {
         return res
             .status(401)
             .json(new ApiResponse(401, "All fields are required"));
     }
 
-    if (password != confirmPassword) {
+    if (new_password != confirm_password) {
         return res
             .status(401)
             .json(new ApiResponse(401, "Password do not match"));
     }
 
-    user.password = password;
+    user.password = new_password;
     user.forgetPasswordToken = undefined;
     user.forgetPasswordExpiry = undefined;
 
@@ -319,7 +322,7 @@ const refreshResetPasswordVerificationToken = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
-    const user = await User.findone({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
         return res
@@ -327,16 +330,16 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
             .json(new ApiResponse(401, null, "user not found"));
     }
 
-    const { currentPassword, confirmCurrentPassword } = req.body;
+    const { current_password, confirm_password } = req.body;
     console.log("user.password is ", user.password);
 
-    if (currentPassword != confirmCurrentPassword) {
+    if (current_password != confirm_password) {
         return res
             .status(401)
             .json(new ApiResponse(401, null, "password do not match"));
     }
 
-    user.password = currentPassword;
+    user.password = current_password;
     const data = {
         username: user.username,
         email: user.email,

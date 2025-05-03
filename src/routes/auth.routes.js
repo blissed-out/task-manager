@@ -26,6 +26,7 @@ import { Router } from "express";
 import { isLoggedIn } from "../middlewares/login.middleware.js";
 
 const route = Router();
+
 route.get("/", home);
 route.post("/register", userRegistrationValidation(), validate, registerUser);
 route.get("/verify/:token", userVerifyValidation(), verifyUser);
@@ -47,6 +48,11 @@ route.post(
     userResendPasswordVerification(),
     refreshResetPasswordVerificationToken,
 );
-route.post("/changePassword", isLoggedIn, changeCurrentPassword);
+route.post(
+    "/changePassword",
+    userResetPasswordValidation(),
+    isLoggedIn,
+    changeCurrentPassword,
+);
 
 export default route;

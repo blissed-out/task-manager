@@ -60,7 +60,16 @@ const userForgetPasswordValidation = () => {
 };
 
 const userResetPasswordValidation = () => {
-    return [param("token").trim().notEmpty().withMessage("no token found")];
+    console.log("user reset validation");
+    return [
+        param("token").trim().notEmpty().withMessage("no token found"),
+        body("new_password")
+            .trim()
+            .notEmpty()
+            .withMessage("password field is required")
+            .isLength({ min: 6 })
+            .withMessage("Password should be atleast 6 characters"),
+    ];
 };
 
 const userLoginMiddlewareValidation = () => {
