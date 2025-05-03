@@ -67,6 +67,12 @@ const userLoginMiddlewareValidation = () => {
     return [cookie("token").trim().notEmpty().withMessage("no token found")];
 };
 
+const userResendEmailVerification = () => {
+    return [cookie("token").trim().notEmpty().withMessage("no token found")];
+};
+const userResendPasswordVerification = () => {
+    return [cookie("token").trim().notEmpty().withMessage("no token found")];
+};
 export {
     userRegistrationValidation,
     userVerifyValidation,
@@ -74,4 +80,6 @@ export {
     userForgetPasswordValidation,
     userResetPasswordValidation,
     userLoginMiddlewareValidation,
+    userResendEmailVerification,
+    userResendPasswordVerification,
 };

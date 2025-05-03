@@ -6,6 +6,9 @@ import {
     resetPassword,
     verifyUser,
     getUser,
+    changeCurrentPassword,
+    refreshEmailVerificationToken,
+    refreshResetPasswordVerificationToken,
 } from "../controllers/auth.controllers.js";
 import {
     userRegistrationValidation,
@@ -14,6 +17,8 @@ import {
     userForgetPasswordValidation,
     userResetPasswordValidation,
     userLoginMiddlewareValidation,
+    userResendPasswordVerification,
+    userResendEmailVerification,
 } from "../validator/index.js";
 import { validate } from "../middlewares/validator.middleware.js";
 
@@ -32,5 +37,16 @@ route.get(
 );
 route.post("/login", userLoginValidation(), loginUser);
 route.get("/me", userLoginMiddlewareValidation(), isLoggedIn, getUser);
+route.post(
+    "/resendEmailVerification",
+    userResendEmailVerification(),
+    refreshEmailVerificationToken,
+);
+route.post(
+    "/resendResetPassword",
+    userResendPasswordVerification(),
+    refreshResetPasswordVerificationToken,
+);
+route.post("/changePassword", isLoggedIn, changeCurrentPassword);
 
 export default route;

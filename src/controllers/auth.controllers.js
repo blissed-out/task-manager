@@ -1,7 +1,6 @@
 import User from "../models/user.models.js";
 import asyncHandler from "../utils/async_handler.js";
 import ApiResponse from "../utils/api-response.js";
-import ApiError from "../utils/api-error.js";
 
 import {
     sendMail,
@@ -14,23 +13,24 @@ const home = async (req, res) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-    console.log("reigsterUser controller runned ");
     const { username, email, password } = req.body;
     // get data from user
     // validate data
     // store in database (hash the password)
     // send response
 
-    // if (!username || !email || !password) {
-    //     return res.status(401).json(new ApiError(401, "All fields requried"));
-    // }
+    if (!username || !email || !password) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "All fields requried"));
+    }
 
     const user = await User.findOne({ email });
 
     if (user) {
         return res
             .status(401)
-            .json(new ApiError(401, "User already registered"));
+            .json(new ApiResponse(401, "User already registered"));
     }
 
     const createdUser = new User({ username, email, password });
@@ -71,20 +71,20 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     const { token } = req.params;
 
-    // if (!token) {
-    //     return res.status(401).json(new ApiError(401, "Token not found"));
-    // }
+    if (!token) {
+        return res.status(401).json(new ApiResponse(401, "Token not found"));
+    }
 
     const user = await User.findOne({ emailVerificationToken: token });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "Invalid token"));
+        return res.status(401).json(new ApiResponse(401, "Invalid token"));
     }
 
     // check expiry of the token
     if (user.emailVerificationExpiry <= Date.now()) {
         user.emailVerificationExpiry = undefined;
-        return res.status(401).json(new ApiError(401, "Token Expired"));
+        return res.status(401).json(new ApiResponse(401, "Token Expired"));
     }
 
     const data = {
@@ -94,6 +94,7 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
+    user.emailVerificationExpiry = undefined;
     user.save();
 
     return res
@@ -107,20 +108,18 @@ const loginUser = asyncHandler(async (req, res) => {
     // use jsonwebtoken cookies
     const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res
-            .status(401)
-            .json(new ApiError(401, "All fields are required"));
-    }
-
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "User not registered"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "User not registered"));
     }
 
     if (!(await user.isPasswordCorrect(password))) {
-        return res.status(401).json(new ApiError(401, "Password not matched"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "Password not matched"));
     }
 
     const token = user.generateAccessToken();
@@ -132,7 +131,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.cookie("token", token, cookieOptions);
 
     res.status(200).json(
-        new ApiResponse(200, { message: "Login successfull" }),
+        new ApiResponse(200, null, "User loggined succesfully"),
     );
 });
 
@@ -144,7 +143,9 @@ const forgetPassword = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "User not registered"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "User not registered"));
     }
 
     const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
@@ -180,19 +181,19 @@ const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        return res.status(401).json(new ApiError(401, "Toke not found"));
+        return res.status(401).json(new ApiResponse(401, "Toke not found"));
     }
 
     const user = await User.findOne({ forgetPasswordToken: token });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "Invalid token"));
+        return res.status(401).json(new ApiResponse(401, "Invalid token"));
     }
 
     // check expiry time
     if (user.forgetPasswordExpiry <= Date.now()) {
         user.forgetPasswordExpiry = undefined;
-        return res.status(401).json(new ApiError(401, "Token Expired"));
+        return res.status(401).json(new ApiResponse(401, "Token Expired"));
     }
 
     // let user change password
@@ -202,27 +203,150 @@ const resetPassword = asyncHandler(async (req, res) => {
     if (!password || !confirmPassword) {
         return res
             .status(401)
-            .json(new ApiError(401, "All fields are required"));
+            .json(new ApiResponse(401, "All fields are required"));
     }
 
     if (password != confirmPassword) {
-        return res.status(401).json(new ApiError(401, "Password do not match"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "Password do not match"));
     }
 
     user.password = password;
+    user.forgetPasswordToken = undefined;
+    user.forgetPasswordExpiry = undefined;
+
+    user.save();
 
     res.status(200).json(
         new ApiResponse(200, user.email, "Password reset successful"),
     );
-    user.save();
 });
 
-const getUser = async (req, res) => {
+const getUser = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "get profile successful",
     });
-};
+});
+
+const refreshEmailVerificationToken = asyncHandler(async (req, res) => {
+    // get user
+    // set new token, and expiry time
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "user is not registered"));
+    }
+
+    const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
+    user.emailVerificationToken = unhashedToken;
+    user.emailVerificationExpiry = tokenExpiry;
+
+    const data = {
+        username: user.username,
+        email: user.email,
+    };
+
+    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/${unhashedToken}`;
+
+    sendMail({
+        mailGenContent: emailVerificationContent(
+            user.username,
+            verificationUrl,
+        ),
+        userEmail: email,
+    });
+
+    user.save();
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            data,
+            "refresh email verification token successful",
+        ),
+    );
+});
+
+const refreshResetPasswordVerificationToken = asyncHandler(async (req, res) => {
+    // get user data
+    // set new token and expiry time
+
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "user not registered"));
+    }
+
+    const { unhashedToken, tokenExpiry } = user.generateTemporaryToken;
+    user.forgetPasswordToken = unhashedToken;
+    user.forgetPasswordExpiry = tokenExpiry;
+
+    const data = {
+        username: user.username,
+        email: user.email,
+    };
+
+    const forgetPasswordUrl = `${process.env.HOST}/${process.env.PORT}/api/v1/users/${unhashedToken}`;
+
+    sendMail({
+        mailGenContent: forgetPasswordMailContent(
+            user.username,
+            forgetPasswordUrl,
+        ),
+        userEmail: email,
+    });
+
+    user.save();
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            data,
+            "refresh reset paswword verification successful",
+        ),
+    );
+});
+
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findone({ email });
+
+    if (!user) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "user not found"));
+    }
+
+    const { currentPassword, confirmCurrentPassword } = req.body;
+    console.log("user.password is ", user.password);
+
+    if (currentPassword != confirmCurrentPassword) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "password do not match"));
+    }
+
+    user.password = currentPassword;
+    const data = {
+        username: user.username,
+        email: user.email,
+    };
+    user.save();
+
+    res.status(200).json(
+        new ApiResponse(200, data, "current password changed successfully"),
+    );
+});
 
 export {
     registerUser,
@@ -232,4 +356,7 @@ export {
     resetPassword,
     getUser,
     home,
+    refreshEmailVerificationToken,
+    refreshResetPasswordVerificationToken,
+    changeCurrentPassword,
 };
