@@ -1,7 +1,6 @@
 import User from "../models/user.models.js";
 import asyncHandler from "../utils/async_handler.js";
 import ApiResponse from "../utils/api-response.js";
-import ApiError from "../utils/api-error.js";
 
 import {
     sendMail,
@@ -21,7 +20,9 @@ const registerUser = asyncHandler(async (req, res) => {
     // send response
 
     if (!username || !email || !password) {
-        return res.status(401).json(new ApiError(401, "All fields requried"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "All fields requried"));
     }
 
     const user = await User.findOne({ email });
@@ -29,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if (user) {
         return res
             .status(401)
-            .json(new ApiError(401, "User already registered"));
+            .json(new ApiResponse(401, "User already registered"));
     }
 
     const createdUser = new User({ username, email, password });
@@ -71,19 +72,19 @@ const verifyUser = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        return res.status(401).json(new ApiError(401, "Token not found"));
+        return res.status(401).json(new ApiResponse(401, "Token not found"));
     }
 
     const user = await User.findOne({ emailVerificationToken: token });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "Invalid token"));
+        return res.status(401).json(new ApiResponse(401, "Invalid token"));
     }
 
     // check expiry of the token
     if (user.emailVerificationExpiry <= Date.now()) {
         user.emailVerificationExpiry = undefined;
-        return res.status(401).json(new ApiError(401, "Token Expired"));
+        return res.status(401).json(new ApiResponse(401, "Token Expired"));
     }
 
     const data = {
@@ -93,6 +94,7 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
+    user.emailVerificationExpiry = undefined;
     user.save();
 
     return res
@@ -129,7 +131,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.cookie("token", token, cookieOptions);
 
     res.status(200).json(
-        new ApiResponse(200, { message: "Login successfull" }),
+        new ApiResponse(200, null, "User loggined succesfully"),
     );
 });
 
@@ -179,19 +181,19 @@ const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        return res.status(401).json(new ApiError(401, "Toke not found"));
+        return res.status(401).json(new ApiResponse(401, "Toke not found"));
     }
 
     const user = await User.findOne({ forgetPasswordToken: token });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "Invalid token"));
+        return res.status(401).json(new ApiResponse(401, "Invalid token"));
     }
 
     // check expiry time
     if (user.forgetPasswordExpiry <= Date.now()) {
         user.forgetPasswordExpiry = undefined;
-        return res.status(401).json(new ApiError(401, "Token Expired"));
+        return res.status(401).json(new ApiResponse(401, "Token Expired"));
     }
 
     // let user change password
@@ -201,19 +203,21 @@ const resetPassword = asyncHandler(async (req, res) => {
     if (!password || !confirmPassword) {
         return res
             .status(401)
-            .json(new ApiError(401, "All fields are required"));
+            .json(new ApiResponse(401, "All fields are required"));
     }
 
     if (password != confirmPassword) {
-        return res.status(401).json(new ApiError(401, "Password do not match"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "Password do not match"));
     }
 
     user.password = password;
+    user.save();
 
     res.status(200).json(
         new ApiResponse(200, user.email, "Password reset successful"),
     );
-    user.save();
 });
 
 const getUser = asyncHandler(async (req, res) => {
