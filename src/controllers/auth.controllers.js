@@ -216,12 +216,12 @@ const resetPassword = asyncHandler(async (req, res) => {
     user.save();
 });
 
-const getUser = async (req, res) => {
+const getUser = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "get profile successful",
     });
-};
+});
 
 const refreshEmailVerificationToken = asyncHandler(async (req, res) => {
     // get user
