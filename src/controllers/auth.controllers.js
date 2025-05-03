@@ -109,11 +109,15 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "User not registered"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "User not registered"));
     }
 
     if (!(await user.isPasswordCorrect(password))) {
-        return res.status(401).json(new ApiError(401, "Password not matched"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "Password not matched"));
     }
 
     const token = user.generateAccessToken();
@@ -137,7 +141,9 @@ const forgetPassword = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(401).json(new ApiError(401, "User not registered"));
+        return res
+            .status(401)
+            .json(new ApiResponse(401, "User not registered"));
     }
 
     const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
