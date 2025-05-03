@@ -19,6 +19,7 @@ import {
     userLoginMiddlewareValidation,
     userResendPasswordVerification,
     userResendEmailVerification,
+    userChangePasswordValidation,
 } from "../validator/index.js";
 import { validate } from "../middlewares/validator.middleware.js";
 
@@ -29,29 +30,44 @@ const route = Router();
 
 route.get("/", home);
 route.post("/register", userRegistrationValidation(), validate, registerUser);
-route.get("/verify/:token", userVerifyValidation(), verifyUser);
-route.post("/forgetPassword", userForgetPasswordValidation(), forgetPassword);
+route.get("/verify/:token", userVerifyValidation(), validate, verifyUser);
+route.post(
+    "/forgetPassword",
+    userForgetPasswordValidation(),
+    validate,
+    forgetPassword,
+);
 route.get(
     "/resetPassword/:token",
     userResetPasswordValidation(),
+    validate,
     resetPassword,
 );
-route.post("/login", userLoginValidation(), loginUser);
-route.get("/me", userLoginMiddlewareValidation(), isLoggedIn, getUser);
+route.post("/login", userLoginValidation(), validate, loginUser);
+route.get(
+    "/me",
+    isLoggedIn,
+    userLoginMiddlewareValidation(),
+    validate,
+    getUser,
+);
 route.post(
     "/resendEmailVerification",
     userResendEmailVerification(),
+    validate,
     refreshEmailVerificationToken,
 );
 route.post(
     "/resendResetPassword",
     userResendPasswordVerification(),
+    validate,
     refreshResetPasswordVerificationToken,
 );
 route.post(
     "/changePassword",
-    userResetPasswordValidation(),
     isLoggedIn,
+    userChangePasswordValidation(),
+    validate,
     changeCurrentPassword,
 );
 
