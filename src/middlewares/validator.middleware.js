@@ -3,6 +3,7 @@ import ApiError from "../utils/api-error.js";
 
 export const validate = (req, res, next) => {
     const errors = validationResult(req);
+    console.log("errors is: ", errors);
     if (errors.isEmpty()) {
         return next();
     }
@@ -14,5 +15,8 @@ export const validate = (req, res, next) => {
         }),
     );
 
-    throw new ApiError(443, "user validation error");
+    res.status(443).json(
+        new ApiError(443, "user validation error", extractedError),
+    );
+    // throw new ApiError(443, "user validation error");
 };

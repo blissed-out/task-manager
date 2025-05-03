@@ -14,6 +14,7 @@ const home = async (req, res) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
+    console.log("reigsterUser controller runned");
     const { username, email, password } = req.body;
     // get data from user
     // validate data
