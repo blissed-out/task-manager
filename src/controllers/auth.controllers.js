@@ -14,7 +14,7 @@ const home = async (req, res) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-    console.log("reigsterUser controller runned");
+    console.log("reigsterUser controller runned ");
     const { username, email, password } = req.body;
     // get data from user
     // validate data
@@ -71,9 +71,9 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     const { token } = req.params;
 
-    if (!token) {
-        return res.status(401).json(new ApiError(401, "Token not found"));
-    }
+    // if (!token) {
+    //     return res.status(401).json(new ApiError(401, "Token not found"));
+    // }
 
     const user = await User.findOne({ emailVerificationToken: token });
 
