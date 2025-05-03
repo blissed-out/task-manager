@@ -330,8 +330,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
             .json(new ApiResponse(401, null, "user not found"));
     }
 
-    const { current_password, confirm_password } = req.body;
-    console.log("user.password is ", user.password);
+    const { current_password, new_password, confirm_password } = req.body;
+
+    if (!user.isPasswordCorrect(new_password)) {
+        return res
+            .status(443)
+            .json(new ApiResponse(443, email, "incorrect current password"));
+    }
 
     if (current_password != confirm_password) {
         return res
