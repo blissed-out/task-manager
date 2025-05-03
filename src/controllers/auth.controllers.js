@@ -106,12 +106,6 @@ const loginUser = asyncHandler(async (req, res) => {
     // use jsonwebtoken cookies
     const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res
-            .status(401)
-            .json(new ApiError(401, "All fields are required"));
-    }
-
     const user = await User.findOne({ email });
 
     if (!user) {
