@@ -134,7 +134,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const data = { email };
 
     res.status(200).json(
-        new ApiResponse(200, data, "User loggined succesfully"),
+        new ApiResponse(200, data, "User loggedIn succesfully"),
     );
 });
 
@@ -338,7 +338,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
             .json(new ApiResponse(443, email, "incorrect current password"));
     }
 
-    if (current_password != confirm_password) {
+    if (new_password != confirm_password) {
         return res
             .status(401)
             .json(new ApiResponse(401, null, "password do not match"));

@@ -93,7 +93,8 @@ userSchema.methods.generateAccessToken = function () {
             username: this.username,
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY },
+        // { expiresIn: process.env.ACCESS_TOKEN_EXPIRY },
+        { expiresIn: "10h" }, // BUG: setting to only 1 or 2 minute
     );
 };
 

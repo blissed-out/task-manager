@@ -71,10 +71,6 @@ const userResetPasswordValidation = () => {
     ];
 };
 
-const userLoginMiddlewareValidation = () => {
-    return [cookie("token").trim().notEmpty().withMessage("no token found")];
-};
-
 const userResendEmailVerification = () => {
     return [cookie("token").trim().notEmpty().withMessage("no token found")];
 };
@@ -85,7 +81,7 @@ const userResendPasswordVerification = () => {
 const userChangePasswordValidation = () => {
     console.log("user change passwor validation reached");
     return [
-        body("current_password")
+        body("new_password")
             .trim()
             .notEmpty()
             .withMessage("password field is required")
@@ -100,7 +96,6 @@ export {
     userLoginValidation,
     userForgetPasswordValidation,
     userResetPasswordValidation,
-    userLoginMiddlewareValidation,
     userResendEmailVerification,
     userResendPasswordVerification,
     userChangePasswordValidation,

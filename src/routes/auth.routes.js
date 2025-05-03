@@ -16,7 +16,6 @@ import {
     userLoginValidation,
     userForgetPasswordValidation,
     userResetPasswordValidation,
-    userLoginMiddlewareValidation,
     userResendPasswordVerification,
     userResendEmailVerification,
     userChangePasswordValidation,
@@ -44,13 +43,7 @@ route.get(
     resetPassword,
 );
 route.post("/login", userLoginValidation(), validate, loginUser);
-route.get(
-    "/me",
-    isLoggedIn,
-    userLoginMiddlewareValidation(),
-    validate,
-    getUser,
-);
+route.get("/me", isLoggedIn, validate, getUser);
 route.post(
     "/resendEmailVerification",
     userResendEmailVerification(),
