@@ -243,7 +243,7 @@ const refreshEmailVerificationToken = asyncHandler(async (req, res) => {
     if (!user) {
         return res
             .status(401)
-            .json(new ApiResponse(401, "user is not registered"));
+            .json(new ApiResponse(401, null, "user is not registered"));
     }
 
     const { unhashedToken, tokenExpiry } = user.generateTemporaryToken();
@@ -255,10 +255,10 @@ const refreshEmailVerificationToken = asyncHandler(async (req, res) => {
         email: user.email,
     };
 
-    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/${unhashedToken}`;
+    const verificationUrl = `${process.env.HOST}:${process.env.PORT}/api/v1/users/verify/${unhashedToken}`;
 
     sendMail({
-        mailGenContent: emailVerificationContent(
+        mailgenContent: emailVerificationContent(
             user.username,
             verificationUrl,
         ),
@@ -331,8 +331,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     }
 
     const { current_password, new_password, confirm_password } = req.body;
-
-    if (!user.isPasswordCorrect(new_password)) {
+    if (!(await user.isPasswordCorrect(current_password))) {
         return res
             .status(443)
             .json(new ApiResponse(443, email, "incorrect current password"));
@@ -344,7 +343,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
             .json(new ApiResponse(401, null, "password do not match"));
     }
 
-    user.password = current_password;
+    user.password = new_password;
     const data = {
         username: user.username,
         email: user.email,
