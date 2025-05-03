@@ -6,6 +6,7 @@ import {
     resetPassword,
     verifyUser,
     getUser,
+    changeCurrentPassword,
 } from "../controllers/auth.controllers.js";
 
 import { Router } from "express";
@@ -19,5 +20,6 @@ route.post("/forgetPassword", forgetPassword);
 route.get("/resetPassword/:token", resetPassword);
 route.post("/login", loginUser);
 route.get("/me", isLoggedIn, getUser);
+route.post("/changeCurrrentPassword", isLoggedIn, changeCurrentPassword);
 
 export default route;

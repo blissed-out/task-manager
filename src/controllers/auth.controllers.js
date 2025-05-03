@@ -309,6 +309,37 @@ const refreshResetPasswordVerificationToken = asyncHandler(async (req, res) => {
     );
 });
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findone({ email });
+
+    if (!user) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "user not found"));
+    }
+
+    const { currentPassword, confirmCurrentPassword } = req.body;
+
+    if (currentPassword != confirmCurrentPassword) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "password do not match"));
+    }
+
+    user.password = currentPassword;
+    const data = {
+        username: user.username,
+        email: user.email,
+    };
+    user.save();
+
+    res.status(200).json(
+        new ApiResponse(200, data, "current password changed successfully"),
+    );
+});
+
 export {
     registerUser,
     verifyUser,
@@ -317,4 +348,7 @@ export {
     resetPassword,
     getUser,
     home,
+    refreshEmailVerificationToken,
+    refreshResetPasswordVerificationToken,
+    changeCurrentPassword,
 };
