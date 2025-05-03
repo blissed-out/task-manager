@@ -25,6 +25,6 @@ route.get("/me", isLoggedIn, getUser);
 route.post("/me", isLoggedIn, getUser);
 route.post("/resendEmailVerification", refreshEmailVerificationToken);
 route.post("/resendResetPassword", refreshResetPasswordVerificationToken);
-route.post("/changeCurrrentPassword", isLoggedIn, changeCurrentPassword);
+route.post("/changePassword", isLoggedIn, changeCurrentPassword);
 
 export default route;

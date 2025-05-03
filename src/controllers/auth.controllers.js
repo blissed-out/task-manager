@@ -213,6 +213,9 @@ const resetPassword = asyncHandler(async (req, res) => {
     }
 
     user.password = password;
+    user.forgetPasswordToken = undefined;
+    user.forgetPasswordExpiry = undefined;
+
     user.save();
 
     res.status(200).json(
@@ -325,6 +328,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     }
 
     const { currentPassword, confirmCurrentPassword } = req.body;
+    console.log("user.password is ", user.password);
 
     if (currentPassword != confirmCurrentPassword) {
         return res
