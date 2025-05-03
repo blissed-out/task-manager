@@ -273,50 +273,7 @@ const refreshEmailVerificationToken = asyncHandler(async (req, res) => {
             "refresh email verification token successful",
         ),
     );
-});
-
-const refreshResetPasswordVerificationToken = asyncHandler(async (req, res) => {
-    // get user data
-    // set new token and expiry time
-
-    const { email } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-        return res
-            .status(401)
-            .json(new ApiResponse(401, null, "user not registered"));
-    }
-
-    const { unhashedToken, tokenExpiry } = user.generateTemporaryToken;
-    user.forgetPasswordToken = unhashedToken;
-    user.forgetPasswordExpiry = tokenExpiry;
-
-    const data = {
-        username: user.username,
-        email: user.email,
-    };
-
-    const forgetPasswordUrl = `${process.env.HOST}/${process.env.PORT}/api/v1/users/${unhashedToken}`;
-
-    sendMail({
-        mailGenContent: forgetPasswordMailContent(
-            user.username,
-            forgetPasswordUrl,
-        ),
-        userEmail: email,
-    });
-
-    user.save();
-
-    res.status(200).json(
-        new ApiResponse(
-            200,
-            data,
-            "refresh reset paswword verification successful",
-        ),
-    );
+    refreshResetPasswordVerificationToken,
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
@@ -364,6 +321,5 @@ export {
     getUser,
     home,
     refreshEmailVerificationToken,
-    refreshResetPasswordVerificationToken,
     changeCurrentPassword,
 };
