@@ -273,7 +273,6 @@ const refreshEmailVerificationToken = asyncHandler(async (req, res) => {
             "refresh email verification token successful",
         ),
     );
-    refreshResetPasswordVerificationToken,
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
