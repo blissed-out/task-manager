@@ -126,7 +126,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const cookieOptions = {
         httpOnly: true,
-        maxAge: 1 * 60 * 1000,
+        maxAge: 20 * 60 * 1000, // 20 minutes
     };
 
     res.cookie("token", token, cookieOptions);
