@@ -8,7 +8,7 @@ import {
     getUser,
     changeCurrentPassword,
     refreshEmailVerificationToken,
-    refreshResetPasswordVerificationToken,
+    logoutUser,
 } from "../controllers/auth.controllers.js";
 import {
     userRegistrationValidation,
@@ -50,12 +50,7 @@ route.post(
     validate,
     refreshEmailVerificationToken,
 );
-route.post(
-    "/resendResetPassword",
-    userResendPasswordVerification(),
-    validate,
-    refreshResetPasswordVerificationToken,
-);
+
 route.post(
     "/changePassword",
     isLoggedIn,
@@ -63,5 +58,7 @@ route.post(
     validate,
     changeCurrentPassword,
 );
+
+route.get("/logout", isLoggedIn, logoutUser);
 
 export default route;

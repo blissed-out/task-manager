@@ -313,7 +313,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 const logoutUser = (req, res) => {
     // if logged in, then only logout
-    res.cookie("token", "");
+    res.cookies("token", "");
     res.status(200).json(new ApiResponse(200, null, "Logout succesful"));
 };
 
